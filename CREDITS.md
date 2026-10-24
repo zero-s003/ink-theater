@@ -17,9 +17,9 @@
 ## 字体
 
 - **Noto Serif SC**（思源宋体）— SIL Open Font License 1.1
-- **Ma Shan Zheng**（马善政毛笔体）— SIL Open Font License 1.1
 
-两者在构建期通过 `scripts/subset-fonts.mjs` 按页面实际用字抓取子集并自托管，运行时不请求任何第三方字体服务。
+全站只用这一款字体，按 200–600 的字重轴与字距拉开层级。构建期通过 `scripts/subset-fonts.mjs`
+按页面实际用字抓取子集并自托管，运行时不请求任何第三方字体服务。
 
 ## 生成内容
 

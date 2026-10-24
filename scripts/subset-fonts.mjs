@@ -38,9 +38,9 @@ for (const rel of ['src/main.ts', 'src/ui/notes.ts', 'src/ui/clock.ts']) {
 
 const text = [...chars].filter((c) => c.codePointAt(0) >= 0x20).join('');
 
+// 全站只用一款字体：靠字重与字距拉开层级，不靠第二款字体调味
 const families = [
-  'Noto+Serif+SC:wght@200;300;400;600',
-  'Ma+Shan+Zheng',
+  'Noto+Serif+SC:wght@200;300;400;500;600',
 ];
 const url = `https://fonts.googleapis.com/css2?${families
   .map((f) => `family=${f}`)
