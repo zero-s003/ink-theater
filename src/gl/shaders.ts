@@ -154,14 +154,16 @@ uniform float uChapter;
 /** 当前形制框：山水在框内自成构图，而不是跟着屏幕走 */
 uniform vec2 uFrameC;
 uniform vec2 uFrameS;
+/** 团扇两面：0 = A 面（留白），1 = B 面（满月浓墨） */
+uniform float uFace;
 ${NOISE}
 
-float layer(vec2 p, float d, float seed, float shift) {
+float layer(vec2 p, float d, float seed, float shift, float lift, float gain) {
   float scale = mix(0.70, 1.90, d);
   float x = p.x * scale + shift * mix(0.14, 0.62, d) + seed * 4.3;
 
   // 高远式堆叠：远山在上、淡；近山在下、浓
-  float base = mix(0.78, 0.38, d);
+  float base = mix(0.78, 0.38, d) + lift;
   float amp = mix(0.08, 0.27, d);
   float h = ridged(vec2(x * mix(0.50, 0.95, d) + uTime * 0.004, seed * 1.7));
   h = pow(h, mix(1.25, 2.1, d));
@@ -179,14 +181,14 @@ float layer(vec2 p, float d, float seed, float shift) {
   float tex = mix(0.48, 0.28 + 1.12 * cun, d);
 
   float density = inside * wash * (0.30 + 0.9 * tex) * mix(0.16, 0.62, d);
-  // 山脊线：墨色积在山棱上
-  density += smoothstep(0.007, 0.0, diff) * mix(0.10, 0.46, d);
+  // 山脊线：墨色只积在山棱上，天空与山体深处都不该有墨
+  density += smoothstep(0.007, 0.0, abs(diff)) * mix(0.10, 0.46, d);
 
   // 苔点：山脊内侧零星几点浓墨，近山才有
   float nearRidge = smoothstep(0.040, 0.0, diff) * step(0.0, diff);
   float moss = smoothstep(0.80, 0.93, vnoise(vec2(x * 30.0, diff * 300.0 + seed * 7.0)));
   density += nearRidge * moss * smoothstep(0.40, 0.85, d) * 0.5;
-  return density;
+  return density * gain;
 }
 
 void main() {
@@ -197,19 +199,50 @@ void main() {
   vec2 p = q * 0.5 + 0.5;
 
   float shift = uScroll * 2.4;
-  float d = 0.0;
-  d = max(d, layer(p, 0.00, 1.0, shift));
-  d = max(d, layer(p, 0.25, 2.0, shift));
-  d = max(d, layer(p, 0.50, 3.0, shift));
-  d = max(d, layer(p, 0.75, 4.0, shift));
-  d = max(d, layer(p, 1.00, 5.0, shift));
-
   // 云雾：横向的淡带把山拦腰冲淡，留出呼吸
   float fog = smoothstep(0.50, 0.94, fbm(vec2(p.x * 2.1 + uScroll * 1.6, p.y * 6.0 + uTime * 0.012)));
-  d *= 1.0 - fog * 0.58;
 
+  // A 面：留白、三远、山脚化进云气
+  float a = 0.0;
+  a = max(a, layer(p, 0.00, 1.0, shift, 0.0, 1.0));
+  a = max(a, layer(p, 0.25, 2.0, shift, 0.0, 1.0));
+  a = max(a, layer(p, 0.50, 3.0, shift, 0.0, 1.0));
+  a = max(a, layer(p, 0.75, 4.0, shift, 0.0, 1.0));
+  a = max(a, layer(p, 1.00, 5.0, shift, 0.0, 1.0));
+  a *= 1.0 - fog * 0.58;
   // 近地的一层薄雾：山脚化进留白，也托住压在下半页的字
-  d *= smoothstep(0.0, 0.22, p.y);
+  a *= smoothstep(0.0, 0.22, p.y);
+
+  float d = a;
+
+  // 只在团扇这一章生效：翻到 B 面后滚去别的章，画面要自己回来
+  float fanOn = uFace * (1.0 - smoothstep(0.40, 0.80, abs(uChapter - 2.0)));
+  if (fanOn > 0.001) {
+    // B 面「满」：山压得更满、雾更少，一轮满月扣在纸上
+    float b = 0.0;
+    b = max(b, layer(p, 0.00, 11.0, shift, 0.10, 0.88));
+    b = max(b, layer(p, 0.50, 13.0, shift, 0.06, 1.02));
+    b = max(b, layer(p, 1.00, 15.0, shift, 0.02, 1.18));
+    b *= 1.0 - fog * 0.20;
+    b *= smoothstep(0.0, 0.10, p.y) * 0.9 + 0.1;
+
+    // 夜色：一层带云的淡墨，越往上越沉
+    float sky = (0.36 + 0.12 * vnoise(vec2(q.x * 1.7, q.y * 2.6))) * mix(0.45, 1.0, p.y);
+    b = max(b, sky);
+
+    vec2 mp = (p - vec2(0.50, 0.66)) * vec2(uFrameS.x / max(uFrameS.y, 0.001), 1.0);
+    float mr = length(mp);
+    float disc = smoothstep(0.155, 0.138, mr);
+    b = mix(b, 0.0, disc);
+    b += smoothstep(0.005, 0.0, abs(mr - 0.147)) * 0.42;   // 月边一线淡墨
+    b += exp(-mr * 8.0) * 0.10 * (1.0 - disc);             // 月晕
+
+    // 从扇心一圈圈透出来
+    float front = -0.1 + fanOn * 1.4;
+    float inB = 1.0 - smoothstep(front - 0.07, front + 0.07, length(q));
+    d = mix(a, b, inB);
+  }
+
   fragColor = vec4(clamp(d, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
 
@@ -227,6 +260,11 @@ uniform float uTime;
 /** 当前形制框，与山水共用同一份插值结果，保证遮罩不会跟着屏幕外的元素跑 */
 uniform vec2 uFrameC;
 uniform vec2 uFrameS;
+/** 换章时一笔扫过：uSweep 是强度脉冲，uSweepT 是笔的位置 */
+uniform float uSweep;
+uniform float uSweepT;
+/** 开场从无水到成形 */
+uniform float uIntro;
 ${NOISE}
 
 float sdBox(vec2 p, vec2 b) {
@@ -266,17 +304,34 @@ void main() {
   float aa = fwidth(sdf) * 1.1;
   float mask = 1.0 - smoothstep(-aa, aa * 1.4, sdf);
 
+  // 墨扫：一条笔形墨带沿形制框扫过，边缘被噪声咬出飞白
+  vec2 q = (p - uFrameC) / max(uFrameS, vec2(0.02));
+  float bandY = mix(-1.35, 1.35, uSweepT);
+  float ragged = (vnoise(vec2(q.x * 7.0, uTime * 1.2)) - 0.5) * 0.16;
+  float bd = q.y + ragged - bandY;
+  float body = exp(-pow(bd * 11.0, 2.0));                  // 笔身
+  float tip = exp(-pow((bd + 0.045) * 30.0, 2.0)) * 0.85;  // 笔锋更浓的一线
+  // 飞白要顺着笔势拉丝：沿笔走的方向变化慢，横过笔身变化快
+  float dry = smoothstep(0.22, 0.8, vnoise(vec2(q.x * 4.0, bd * 26.0 + bandY * 3.0)));
+  // 边缘被纸纹咬碎，免得像一层均匀的雾
+  float erode = smoothstep(0.0, 0.5, vnoise(vec2(q.x * 70.0, q.y * 70.0 + uTime)) + 0.3);
+  float sweep = (body * 0.6 + tip) * mix(0.45, 1.0, dry) * mix(0.35, 1.0, erode) * uSweep;
+
   vec3 paperCol = texture(uPaper, uv).rgb;
   // 卷首压淡一档，让封面上的字落在留白里
   float dim = mix(0.80, 1.0, clamp(uChapter + 1.0, 0.0, 1.0));
   // 长卷一章字压在画上，墨要退到淡墨那一档，字才站得住
   dim *= 1.0 - 0.44 * exp(-pow((uChapter - 1.0) * 1.7, 2.0));
-  float land = texture(uLand, uv).r * mask * dim;
+  // 笔把墨推着走：扫过处的山稍稍让开
+  float land = texture(uLand, uv + vec2(0.0, sweep * 0.010)).r * mask * dim * uIntro;
   float ink = texture(uInk, uv).r * mix(1.0, mask, 0.75);
   float total = clamp(land + ink * 0.95, 0.0, 1.0);
 
   vec3 inkCol = vec3(0.070, 0.066, 0.058);
   vec3 col = mix(paperCol, inkCol, smoothstep(0.02, 0.82, total));
+
+  // 扫过的湿墨压在最上面
+  col = mix(col, inkCol, clamp(sweep, 0.0, 1.0) * mask * 0.72);
 
   // 形制边界：一圈很轻的墨线
   float edge = smoothstep(0.004, 0.0, abs(sdf)) * 0.28;

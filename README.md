@@ -27,10 +27,12 @@ src/main.ts           装配：渲染器、滚动、引墨、形制框测量
 src/gl/gl.ts          WebGL2 薄封装（program / FBO / 全屏三角）
 src/gl/shaders.ts     五个着色器：纸、落墨、渗化、山水、合成
 src/gl/renderer.ts    管线与自适应降级
-src/ui/scroll.ts      Lenis + 章节进度 + 长卷横移
+src/ui/scroll.ts      Lenis + 长卷横移
 src/ui/notes.ts       18 条画论批注
 src/ui/clock.ts       十二时辰
 src/ui/kid.ts         童戏版
+src/ui/curtain.ts     片头幕布
+src/ui/fan.ts         团扇 A/B 面
 scripts/shoot.mjs     三档视口 + 减少动效 + 无 WebGL 的截图核验
 ```
 
@@ -45,6 +47,15 @@ scripts/shoot.mjs     三档视口 + 减少动效 + 无 WebGL 的截图核验
 
 形制遮罩不是写死的：每帧从页面上的形制元素实测矩形，所以水墨框永远和版式对齐。
 换章时墨会洗掉，免得越画越脏。
+
+**换章的过渡**由形制框在视口中的位置驱动，不是定时器：框走到哪，画面跟到哪。
+过渡中段会有一笔墨带横扫形制框（`uSweep`），笔身带顺着笔势的飞白。
+
+**团扇两面**：点扇子翻面。A 面「圆」是留白山水，B 面「满」是夜色满月；
+切换从扇心向外一圈圈透出（`uFace`），离开这一章会自动回到 A 面。
+
+**片头幕布**：一张纸，中央的洞长开后交出页面。同一会话只演一次（sessionStorage）。
+没有 `@property` 或不支持遮罩动画的浏览器直接跳过。
 
 ## 降级与无障碍
 

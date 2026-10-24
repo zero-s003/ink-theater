@@ -37,6 +37,9 @@ export class InkRenderer {
 
   private chapter = -1;
   private scroll = 0;
+  private face = 0;
+  private sweepT = 0;
+  private intro = 0;
   private frameC: [number, number] = [0, 0];
   private frameS: [number, number] = [0.5, 0.5];
   private flush = 0;
@@ -160,6 +163,21 @@ export class InkRenderer {
     this.frameS = s;
   }
 
+  /** 团扇两面：0 = A，1 = B */
+  setFace(v: number): void {
+    this.face = v;
+  }
+
+  /** 换章进度 0..1：墨带只在中段出现，两端收敛为零 */
+  setSweep(t: number): void {
+    this.sweepT = t;
+  }
+
+  /** 开场淡入 0..1 */
+  setIntro(v: number): void {
+    this.intro = v;
+  }
+
   private adaptive(dt: number): void {
     this.frameSamples.push(dt);
     if (this.frameSamples.length < 90) return;
@@ -233,6 +251,7 @@ export class InkRenderer {
     gl.uniform1f(P.land.u.uChapter, this.chapter);
     gl.uniform2f(P.land.u.uFrameC, this.frameC[0], this.frameC[1]);
     gl.uniform2f(P.land.u.uFrameS, this.frameS[0], this.frameS[1]);
+    gl.uniform1f(P.land.u.uFace, this.face);
     drawFullscreen(gl, this.vao!);
 
     // 4. 合成
@@ -250,6 +269,9 @@ export class InkRenderer {
     gl.uniform1f(P.comp.u.uTime, this.time);
     gl.uniform2f(P.comp.u.uFrameC, this.frameC[0], this.frameC[1]);
     gl.uniform2f(P.comp.u.uFrameS, this.frameS[0], this.frameS[1]);
+    gl.uniform1f(P.comp.u.uSweep, Math.sin(Math.PI * this.sweepT));
+    gl.uniform1f(P.comp.u.uSweepT, this.sweepT);
+    gl.uniform1f(P.comp.u.uIntro, this.intro);
     drawFullscreen(gl, this.vao!);
   }
 

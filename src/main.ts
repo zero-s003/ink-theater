@@ -1,6 +1,8 @@
 import './fonts.css';
 import { InkRenderer } from './gl/renderer';
 import { initClock } from './ui/clock';
+import { initCurtain } from './ui/curtain';
+import { initFan } from './ui/fan';
 import { initKid } from './ui/kid';
 import { initNotes } from './ui/notes';
 import { initScroll } from './ui/scroll';
@@ -63,6 +65,51 @@ initClock();
 initKid();
 const notes = initNotes();
 const { update: updateScroll, lenis } = initScroll(reduced);
+const fanTarget = initFan();
+
+/* ---------- 开场 ---------- */
+let intro = 0;
+let introStart = -1;
+const curtainAnimates = initCurtain(reduced, () => { introStart = performance.now(); });
+if (!curtainAnimates) intro = 1;
+
+/* ---------- 团扇两面 ---------- */
+let face = 0;
+
+/* ---------- 毛笔光圈 ---------- */
+const fine = window.matchMedia('(pointer: fine)').matches && !reduced;
+const ring = document.createElement('div');
+ring.className = 'cursor-ring';
+let ringX = 0, ringY = 0, pointerX = 0, pointerY = 0, hasPointer = false;
+
+if (fine) {
+  document.body.appendChild(ring);
+  window.addEventListener('pointermove', (e) => {
+    pointerX = e.clientX;
+    pointerY = e.clientY;
+    if (!hasPointer) {
+      ringX = pointerX;
+      ringY = pointerY;
+      hasPointer = true;
+      ring.classList.add('is-on');
+    }
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => ring.classList.remove('is-on'));
+}
+
+/* ---------- 印章落下 ---------- */
+const seal = document.querySelector<HTMLElement>('.seal');
+if (seal && !reduced) {
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        seal.classList.add('is-stamped');
+        io.disconnect();
+      }
+    }
+  }, { threshold: 0.55 });
+  io.observe(seal);
+}
 
 /* ---------- 引墨 ---------- */
 let px = 0, py = 0, pt = 0, tracking = false;
@@ -111,7 +158,7 @@ let lastChapter = -2;
 
 const frame = (now: number): void => {
   raf = requestAnimationFrame(frame);
-  const dt = now - last;
+  const dt = Math.min(64, now - last);
   last = now;
 
   lenis?.raf(now);
@@ -129,20 +176,42 @@ const frame = (now: number): void => {
   }
   chapter = Math.max(-1, Math.min(3.999, chapter));
 
+  // 开场：幕布一开，墨从无水到成形
+  if (introStart >= 0 && intro < 1) intro = Math.min(1, (now - introStart) / 1200);
+
+  // 团扇两面缓动
+  const ft = fanTarget();
+  face += (ft - face) * (1 - Math.exp(-dt / 170));
+  if (Math.abs(ft - face) < 0.002) face = ft;
+
+  if (fine && hasPointer) {
+    const k = 1 - Math.exp(-dt / 90);
+    ringX += (pointerX - ringX) * k;
+    ringY += (pointerY - ringY) * k;
+    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+  }
+
   if (!kid) {
     const i0 = Math.floor(chapter);
     const i1 = Math.min(3, i0 + 1);
     const t = chapter - i0;
     const a = masks[i0 + 1];
     const b = masks[i1 + 1];
+    const ease = intro * intro * (3 - 2 * intro);
+
     renderer.setChapter(chapter);
     renderer.setScroll(s.page);
+    renderer.setSweep(t);
+    renderer.setFace(face);
+    renderer.setIntro(ease);
     renderer.setFrame(
       [a.c[0] + (b.c[0] - a.c[0]) * t, a.c[1] + (b.c[1] - a.c[1]) * t],
       [a.s[0] + (b.s[0] - a.s[0]) * t, a.s[1] + (b.s[1] - a.s[1]) * t],
     );
     // 减少动效时不推进时间：画面随滚动变化，但山不会自己漂
     renderer.frame(reduced ? 0 : dt);
+  } else {
+    renderer.setFace(0);
   }
 
   if (document.body.classList.contains('notes-on')) {

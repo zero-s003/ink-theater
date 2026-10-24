@@ -25,8 +25,15 @@ async function session(name, viewport, steps, opts = {}) {
   });
   page.on('pageerror', (e) => problems.push(`[${name}] pageerror: ${e.message}`));
 
-  await page.goto(URL, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1200);
+  // 幕布在字体就位后才开，早一点截才拍得到完整的一张纸
+  await page.goto(URL, { waitUntil: 'domcontentloaded' });
+  if (name === 'desk') {
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(OUT, 'desk-curtain.png') });
+  }
+  // 幕布约 2 秒后自动移除；减少动效或无 @property 时立刻消失
+  await page.waitForFunction(() => !document.querySelector('.curtain'), null, { timeout: 6000 }).catch(() => {});
+  await page.waitForTimeout(1500);
   await steps(page);
   await page.close();
 }
@@ -39,6 +46,17 @@ const shot = async (page, name) => {
 const scrollTo = async (page, y) => {
   await page.evaluate((v) => window.scrollTo(0, v), y);
   await page.waitForTimeout(900);
+};
+
+/** 把某个元素的中心滚到视口 y 处，用来精确卡转场中段 */
+const frameTo = async (page, sel, y) => {
+  await page.evaluate(({ s, yy }) => {
+    const el = document.querySelector(s);
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    window.scrollTo(0, r.top + window.scrollY + r.height / 2 - yy);
+  }, { s: sel, yy: y });
+  await page.waitForTimeout(850);
 };
 
 const topOf = (page, sel) =>
@@ -70,8 +88,19 @@ await session('desk', { width: 1440, height: 900 }, async (page) => {
   await scrollTo(page, reelTop + 900);
   await shot(page, 'desk-ch2');
 
+  // 转场中段：把扇心卡在视口下方约一个屏处，此时墨带最强
+  await frameTo(page, '.fan', 1050);
+  await shot(page, 'desk-sweep');
+
   await scrollTo(page, await topOf(page, '#ch-3'));
   await shot(page, 'desk-ch3');
+
+  // 翻到 B 面
+  await page.click('.fan');
+  await page.waitForTimeout(1100);
+  await shot(page, 'desk-fan-b');
+  await page.click('.fan');
+  await page.waitForTimeout(900);
 
   await scrollTo(page, await topOf(page, '#ch-4'));
   await shot(page, 'desk-ch4');

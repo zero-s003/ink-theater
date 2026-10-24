@@ -15,6 +15,12 @@
 <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
+<div class="curtain" aria-hidden="true">
+  <span class="curtain__seal">墨<br />迹</span>
+  <span class="curtain__rule"></span>
+  <span class="curtain__hint">展卷</span>
+</div>
+
 <canvas id="ink" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
 <div class="doodle" aria-hidden="true">
@@ -118,7 +124,7 @@
     </div>
   </section>
 
-  <section class="chapter chapter--circle" id="ch-3" data-chapter="2" data-title="团扇">
+  <section class="chapter chapter--circle" id="ch-3" data-chapter="2" data-title="团扇" data-face="a">
     <header class="ch-head">
       <span class="ch-num">三</span>
       <div>
@@ -128,13 +134,14 @@
     </header>
     <p class="ch-lede">一握之间，山水收拢成圆。团扇不追求深远，它只求把一方小景，端端正正地放在掌心。</p>
 
-    <div class="fan" aria-label="团扇形制示意">
-      <div class="fan__ring"></div>
-      <div class="fan__ring fan__ring--inner"></div>
+    <button type="button" class="fan" aria-pressed="false" aria-label="翻到 B 面">
+      <span class="fan__ring"></span>
+      <span class="fan__ring fan__ring--inner"></span>
       <span class="fan__side fan__side--a">A 面 · 圆</span>
       <span class="fan__side fan__side--b">B 面 · 满</span>
       <span class="fan__axis"></span>
-    </div>
+      <span class="fan__hint">点扇翻面</span>
+    </button>
 
     <dl class="ch-meta ch-meta--wide">
       <div class="meta-row" data-note="9"><dt><span class="meta-no">3.1</span>用途</dt><dd>手持扇面 <b>/</b> 赠答 <b>/</b> 小景 <b>/</b> 花鸟</dd></div>

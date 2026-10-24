@@ -19,7 +19,7 @@ export function initScroll(reduced: boolean): {
 
   const lenis = reduced
     ? null
-    : new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.5 });
+    : new Lenis({ duration: 1.05, smoothWheel: true, touchMultiplier: 1.5 });
 
   document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
