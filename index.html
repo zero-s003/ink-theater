@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>墨迹剧场 · 形制如何塑造观看</title>
+<meta name="description" content="以实时水墨渲染重演中国画的四种形制：立轴、长卷、团扇、山势。" />
+<meta name="theme-color" content="#e9e3d3" />
+<meta property="og:title" content="墨迹剧场 · 形制如何塑造观看" />
+<meta property="og:description" content="以实时水墨渲染重演中国画的四种形制：立轴、长卷、团扇、山势。" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="./art/tuanshan.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23e9e3d3'/><circle cx='16' cy='16' r='9' fill='%2316150f'/></svg>" />
+<link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+<canvas id="ink" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="doodle" aria-hidden="true">
+  <svg viewBox="0 0 800 500" preserveAspectRatio="none">
+    <path d="M0 420 L90 330 L150 370 L230 250 L300 330 L360 290 L440 380 L520 300 L610 360 L700 260 L800 340" />
+    <circle cx="160" cy="150" r="34" />
+    <path d="M480 120 q30 -40 60 0 q-30 40 -60 0" />
+    <path d="M600 200 l26 -18 l26 18 l-26 18 z" />
+    <path d="M60 200 q40 -30 80 0" />
+  </svg>
+</div>
+
+<header class="hud">
+  <a class="hud__brand" href="#cover" aria-label="返回卷首">
+    <span class="brand-cn">墨迹剧场</span>
+    <span class="brand-en">INK THEATER</span>
+  </a>
+  <p class="hud__clock" aria-live="polite"><span class="clock__shi">—</span><span class="clock__ke">—</span></p>
+  <nav class="hud__nav">
+    <button type="button" class="btn" data-toggle="notes" aria-pressed="false">画论批注</button>
+    <button type="button" class="btn" data-toggle="kid" aria-pressed="false">童戏</button>
+  </nav>
+</header>
+
+<main>
+  <section class="cover" id="cover">
+    <p class="cover__kicker">格式 · 形制 · 观看</p>
+    <h1 class="cover__title">墨迹剧场</h1>
+    <p class="cover__en">A STUDY OF FORMAT IN INK</p>
+    <p class="cover__lede">中国画从来不只是一幅画，而是一种观看方式。<br />形制决定视线如何移动——立轴自上而下，长卷自右而左，团扇绕心而行，山势自峰而落。</p>
+    <dl class="cover__imprint">
+      <div><dt>作</dt><dd>实时水墨 · WebGL2</dd></div>
+      <div><dt>法</dt><dd>程序生成 · 公版藏品</dd></div>
+      <div><dt>卷</dt><dd>四章 · 十八注</dd></div>
+    </dl>
+    <a class="cover__cue" href="#ch-1"><span>展卷</span><i></i></a>
+  </section>
+
+  <section class="chapter" id="ch-1" data-chapter="0" data-title="立轴">
+    <header class="ch-head">
+      <span class="ch-num">一</span>
+      <div>
+        <h2 class="ch-name">立轴</h2>
+        <p class="ch-en">VERTICAL SCROLL</p>
+      </div>
+    </header>
+    <p class="ch-lede">立于墙前，目光自上而下，一泻千里。立轴把时间竖起来。</p>
+
+    <dl class="ch-meta">
+      <div class="meta-row" data-note="1"><dt><span class="meta-no">1.1</span>用途</dt><dd>书画装裱 <b>/</b> 中堂悬挂 <b>/</b> 条幅对联</dd></div>
+      <div class="meta-row" data-note="2"><dt><span class="meta-no">1.2</span>形制</dt><dd>狭长纵幅 <b>/</b> 天地头 <b>/</b> 绫边 <b>/</b> 轴杆</dd></div>
+      <div class="meta-row" data-note="3"><dt><span class="meta-no">1.3</span>气韵</dt><dd>高远 <b>/</b> 收束 <b>/</b> 纵势 <b>/</b> 凝神</dd></div>
+      <div class="meta-row" data-note="4"><dt><span class="meta-no">1.4</span>章法</dt><dd>居中取势 <b>/</b> 上下留白 <b>/</b> 一线贯穿</dd></div>
+    </dl>
+
+    <figure class="stage stage--axis" aria-label="立轴形制示意">
+      <div class="axis__rod axis__rod--top"></div>
+      <div class="axis__body"></div>
+      <div class="axis__rod axis__rod--bottom"></div>
+      <figcaption>天地头压住上下，中间只容得下一条气脉。</figcaption>
+    </figure>
+  </section>
+
+  <section class="chapter chapter--reel" id="ch-2" data-chapter="1" data-title="长卷">
+    <header class="ch-head">
+      <span class="ch-num">二</span>
+      <div>
+        <h2 class="ch-name">长卷</h2>
+        <p class="ch-en">HORIZONTAL HANDSCROLL</p>
+      </div>
+    </header>
+
+    <div class="reel">
+      <div class="reel__sticky">
+        <div class="reel__track">
+          <article class="reel__panel">
+            <p class="ch-lede">展一寸，看一寸；收起，便是一轴无言的记事。长卷不给人全景，它只给「下一段」。</p>
+          </article>
+          <div class="reel__band" aria-hidden="true"></div>
+          <article class="reel__panel">
+            <dl class="ch-meta">
+              <div class="meta-row" data-note="5"><dt><span class="meta-no">2.1</span>用途</dt><dd>案头展观 <b>/</b> 题跋接续 <b>/</b> 卧游 <b>/</b> 叙事</dd></div>
+              <div class="meta-row" data-note="6"><dt><span class="meta-no">2.2</span>形制</dt><dd>横幅 <b>/</b> 引首 <b>/</b> 拖尾 <b>/</b> 接纸</dd></div>
+              <div class="meta-row" data-note="7"><dt><span class="meta-no">2.3</span>气韵</dt><dd>平远 <b>/</b> 舒展 <b>/</b> 从容 <b>/</b> 移步换景</dd></div>
+              <div class="meta-row" data-note="8"><dt><span class="meta-no">2.4</span>章法</dt><dd>起承转合 <b>/</b> 长轴贯通 <b>/</b> 留白呼吸</dd></div>
+            </dl>
+          </article>
+          <article class="reel__panel reel__panel--album">
+            <p class="panel__tag">变体 · 册页</p>
+            <h3 class="panel__title">Rounded</h3>
+            <p class="panel__text">同样的横势，四角一圆，便从堂皇转为温润。册页可收可展，像把一段山水折进衣袋。</p>
+          </article>
+          <article class="reel__panel reel__panel--screen">
+            <p class="panel__tag">变体 · 屏风</p>
+            <h3 class="panel__title">Folded</h3>
+            <p class="panel__text">折页成屏，形制自己长出棱角。每一扇各成一幅，合起来又是一幅。</p>
+          </article>
+        </div>
+        <div class="reel__progress"><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter chapter--circle" id="ch-3" data-chapter="2" data-title="团扇">
+    <header class="ch-head">
+      <span class="ch-num">三</span>
+      <div>
+        <h2 class="ch-name">团扇</h2>
+        <p class="ch-en">CIRCULAR FAN</p>
+      </div>
+    </header>
+    <p class="ch-lede">一握之间，山水收拢成圆。团扇不追求深远，它只求把一方小景，端端正正地放在掌心。</p>
+
+    <div class="fan" aria-label="团扇形制示意">
+      <div class="fan__ring"></div>
+      <div class="fan__ring fan__ring--inner"></div>
+      <span class="fan__side fan__side--a">A 面 · 圆</span>
+      <span class="fan__side fan__side--b">B 面 · 满</span>
+      <span class="fan__axis"></span>
+    </div>
+
+    <dl class="ch-meta ch-meta--wide">
+      <div class="meta-row" data-note="9"><dt><span class="meta-no">3.1</span>用途</dt><dd>手持扇面 <b>/</b> 赠答 <b>/</b> 小景 <b>/</b> 花鸟</dd></div>
+      <div class="meta-row" data-note="10"><dt><span class="meta-no">3.2</span>形制</dt><dd>圆形 <b>/</b> 绢本 <b>/</b> 竹柄 <b>/</b> 双面</dd></div>
+      <div class="meta-row" data-note="11"><dt><span class="meta-no">3.3</span>气韵</dt><dd>圆满 <b>/</b> 精致 <b>/</b> 亲近 <b>/</b> 团圆</dd></div>
+      <div class="meta-row" data-note="12"><dt><span class="meta-no">3.4</span>章法</dt><dd>中心取势 <b>/</b> 边角留白 <b>/</b> 环形呼应</dd></div>
+    </dl>
+  </section>
+
+  <section class="chapter chapter--peak" id="ch-4" data-chapter="3" data-title="山势">
+    <header class="ch-head">
+      <span class="ch-num">四</span>
+      <div>
+        <h2 class="ch-name">山势</h2>
+        <p class="ch-en">TRIANGULAR / FOLDING FAN</p>
+      </div>
+    </header>
+    <p class="ch-lede">折扇一开，山便立起来。三角是最不肯安分的形制——它总要往一个方向倒。</p>
+
+    <figure class="stage stage--peak" aria-label="折扇三角示意">
+      <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path class="peak__edge" d="M20 240 L200 24 L380 240" />
+        <path class="peak__fold" d="M20 240 L200 24 M200 24 L380 240 M60 240 L200 24 M110 240 L200 24 M150 240 L200 24 M250 240 L200 24 M290 240 L200 24 M340 240 L200 24" />
+        <path class="peak__arc" d="M60 240 Q200 168 340 240" />
+      </svg>
+      <figcaption>上重下轻，反而稳；峰峦叠压，才立得住。</figcaption>
+    </figure>
+
+    <dl class="ch-meta ch-meta--wide">
+      <div class="meta-row" data-note="13"><dt><span class="meta-no">4.1</span>用途</dt><dd>折扇扇面 <b>/</b> 险景 <b>/</b> 屏障 <b>/</b> 远景</dd></div>
+      <div class="meta-row" data-note="14"><dt><span class="meta-no">4.2</span>形制</dt><dd>三角 <b>/</b> 斜向 <b>/</b> 折线 <b>/</b> 尖锐</dd></div>
+      <div class="meta-row" data-note="15"><dt><span class="meta-no">4.3</span>气韵</dt><dd>峻拔 <b>/</b> 动势 <b>/</b> 奇险 <b>/</b> 凌厉</dd></div>
+      <div class="meta-row" data-note="16"><dt><span class="meta-no">4.4</span>章法</dt><dd>对角取势 <b>/</b> 上重下轻 <b>/</b> 峰峦叠压</dd></div>
+    </dl>
+  </section>
+
+  <section class="originals" aria-label="公版真迹对照">
+    <header class="originals__head">
+      <span class="ch-num ch-num--sm">对照</span>
+      <p class="originals__lede">四件真迹，四种形制。程序化成的墨在左，真迹在右——看形制如何各自成立。图像均属公有领域，出自大都会艺术博物馆开放数据。</p>
+    </header>
+    <ul class="originals__grid">
+      <li class="work">
+        <a class="work__frame" href="https://www.metmuseum.org/art/collection/search/45637" target="_blank" rel="noopener">
+          <img src="./art/lizhou.jpg" alt="王蒙 Red Cliffs and Green Valleys，立轴，纸本水墨" loading="lazy" width="1024" height="1400" />
+        </a>
+        <div class="work__meta">
+          <p class="work__format">立轴</p>
+          <p class="work__title">Red Cliffs and Green Valleys</p>
+          <p class="work__by">王蒙 · 约 1367 · 纸本水墨</p>
+        </div>
+      </li>
+      <li class="work">
+        <a class="work__frame" href="https://www.metmuseum.org/art/collection/search/36070" target="_blank" rel="noopener">
+          <img src="./art/changjuan.jpg" alt="董其昌 Landscape in the Style of Mi Fu，长卷，绢本水墨" loading="lazy" width="1400" height="565" />
+        </a>
+        <div class="work__meta">
+          <p class="work__format">长卷</p>
+          <p class="work__title">Landscape in the Style of Mi Fu</p>
+          <p class="work__by">董其昌 · 1611–1612 · 绢本水墨</p>
+        </div>
+      </li>
+      <li class="work">
+        <a class="work__frame" href="https://www.metmuseum.org/art/collection/search/45664" target="_blank" rel="noopener">
+          <img src="./art/tuanshan.jpg" alt="Palaces among Autumn Mountains，团扇改装册页，绢本设色" loading="lazy" width="1400" height="1328" />
+        </a>
+        <div class="work__meta">
+          <p class="work__format">团扇</p>
+          <p class="work__title">Palaces among Autumn Mountains</p>
+          <p class="work__by">佚名 · 团扇改装册页 · 绢本设色</p>
+        </div>
+      </li>
+      <li class="work">
+        <a class="work__frame" href="https://www.metmuseum.org/art/collection/search/51392" target="_blank" rel="noopener">
+          <img src="./art/ceye.jpg" alt="Moonlit terrace，册页，绢本设色" loading="lazy" width="1400" height="1236" />
+        </a>
+        <div class="work__meta">
+          <p class="work__format">册页</p>
+          <p class="work__title">Moonlit terrace</p>
+          <p class="work__by">佚名 · 17 世纪 · 绢本设色</p>
+        </div>
+      </li>
+    </ul>
+    <p class="originals__note">题名从馆藏著录，未作转译；点开可至大都会博物馆原页。</p>
+  </section>
+
+  <footer class="colophon">
+    <blockquote class="colophon__quote">
+      山有三远：自山下而仰山巅，谓之高远；自山前而窥山后，谓之深远；自近山而望远山，谓之平远。
+      <cite>—— 郭熙《林泉高致》</cite>
+    </blockquote>
+    <div class="colophon__grid">
+      <div>
+        <h4>形制</h4>
+        <p>立轴 · 长卷 · 团扇 · 山势</p>
+      </div>
+      <div>
+        <h4>技术</h4>
+        <p>WebGL2 实时水墨：程序化宣纸、落墨、渗化、皴法、墨扫。</p>
+      </div>
+      <div>
+        <h4>出处</h4>
+        <p>名画影像来自 The Metropolitan Museum of Art 开放数据，均为公有领域。字体：思源宋体、马善政毛笔体（SIL OFL）。</p>
+      </div>
+    </div>
+    <div class="colophon__mark">
+      <span class="seal" aria-hidden="true">墨<br />迹</span>
+      <p>墨迹剧场 · 二〇二六</p>
+    </div>
+  </footer>
+</main>
+
+<div class="notes" id="notes" aria-hidden="true"></div>
+
+<noscript><p class="noscript">本作以 WebGL 实时绘制水墨，请启用 JavaScript 以展卷。</p></noscript>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
